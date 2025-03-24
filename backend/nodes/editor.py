@@ -14,26 +14,20 @@ from ..utils.references import format_references_section
 class Editor:
     """Compiles individual section briefings into a cohesive final report."""
     
-    def __init__(self) -> None:
+    def __init__(self, watsonx_api_key: str, watsonx_project_id: str) -> None:
         # self.openai_key = os.getenv("OPENAI_API_KEY")
         # if not self.openai_key:
         #     raise ValueError("OPENAI_API_KEY environment variable is not set")
-        # Configure WatsonX
-        self.watsonx_api_key = os.getenv("WATSONX_API_KEY")
-        self.watsonx_project_id = os.getenv("WATSONX_PROJECT_ID")
-        self.watsonx_url = os.getenv("WATSONX_URL")
-        
-        if not self.watsonx_api_key or not self.watsonx_project_id:
-            raise ValueError("WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables must be set")
+
         # Configure OpenAI
         #self.openai_client = AsyncOpenAI(api_key=self.openai_key)
         # Initialize WatsonX client
-        self.watsonx_credentials = Credentials(
-                url=self.watsonx_url,
-                api_key=self.watsonx_api_key,
-            )
         
-        self.watsonx_client = APIClient(self.watsonx_credentials)
+        # Configure WatsonX
+        self.watsonx_client = APIClient(Credentials(
+                url=os.getenv("WATSONX_URL"),
+                api_key=watsonx_api_key,
+            ))
         
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {
@@ -46,7 +40,7 @@ class Editor:
         self.watsonx_model = ModelInference(
             model_id="ibm/granite-3-8b-instruct",  # Choose appropriate model
             api_client=self.watsonx_client,
-            project_id=self.watsonx_project_id,
+            project_id=watsonx_project_id,
             params = watsonx_params
         )
         

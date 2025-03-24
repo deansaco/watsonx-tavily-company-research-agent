@@ -3,12 +3,14 @@ from typing import Dict, Any
 import logging
 from ...classes import ResearchState
 from .base import BaseResearcher
+from tavily import AsyncTavilyClient
+from ibm_watsonx_ai import APIClient
 
 logger = logging.getLogger(__name__)
 
 class FinancialAnalyst(BaseResearcher):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, tavily_api_key: str, watsonx_api_key: str, watsonx_project_id: str) -> None:
+        super().__init__(tavily_api_key, watsonx_api_key, watsonx_project_id)
         self.analyst_type = "financial_analyzer"
 
     async def analyze(self, state: ResearchState) -> Dict[str, Any]:

@@ -13,26 +13,11 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 class BaseResearcher:
-    def __init__(self):
-        tavily_key = os.getenv("TAVILY_API_KEY")
-
-        # Configure WatsonX
-        self.watsonx_api_key = os.getenv("WATSONX_API_KEY")
-        self.watsonx_project_id = os.getenv("WATSONX_PROJECT_ID")
-        self.watsonx_url = os.getenv("WATSONX_URL")
-        
-        if not self.watsonx_api_key or not self.watsonx_project_id:
-            raise ValueError("WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables must be set")
-        
-        if not tavily_key:
-            raise ValueError("Missing Tavily API keys")
-        # Initialize WatsonX client
-        self.watsonx_credentials = Credentials(
+    def __init__(self, tavily_api_key: str, watsonx_api_key: str, watsonx_project_id: str):        
+        self.watsonx_client = APIClient(Credentials(
                 url=os.getenv("WATSONX_URL"),
-                api_key=os.getenv("WATSONX_API_KEY"),
-            )
-        
-        self.watsonx_client = APIClient(self.watsonx_credentials)
+                api_key=watsonx_api_key,
+            ))
         
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {
@@ -45,7 +30,7 @@ class BaseResearcher:
         self.watsonx_model = ModelInference(
             model_id="ibm/granite-3-8b-instruct",
             api_client=self.watsonx_client,
-            project_id=self.watsonx_project_id,
+            project_id=watsonx_project_id,
             params = watsonx_params
         )
 
@@ -53,9 +38,11 @@ class BaseResearcher:
         #openai_key = os.getenv("OPENAI_API_KEY")
         
             
-        self.tavily_client = AsyncTavilyClient(api_key=tavily_key)
+        self.tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
         #self.openai_client = AsyncOpenAI(api_key=openai_key)
         self.analyst_type = "base_researcher"  # Default type
+
+        self._semaphore = asyncio.Semaphore(1)
 
     @property
     def analyst_type(self) -> str:
@@ -95,9 +82,9 @@ class BaseResearcher:
 #                 max_tokens=4096,
 #                 stream=True
 #             )
-            
-            response = await self.watsonx_model.achat_stream(
-                messages=[
+            async with self._semaphore:
+                response = await self.watsonx_model.achat_stream(
+                    messages=[
                     {
                         "role": "system",
                         "content": f"You are researching {company}, a company in the {industry} industry."
@@ -107,8 +94,8 @@ class BaseResearcher:
                         "content": f"""Researching {company} on {datetime.now().strftime("%B %d, %Y")}.
 {self._format_query_prompt(prompt, company, hq, current_year)}"""
                     }
-                ],
-            )
+                    ],
+                )   
 
             
             queries = []
@@ -116,6 +103,7 @@ class BaseResearcher:
             current_query_number = 1
 
             async for chunk in response:
+                await asyncio.sleep(1)
                 # Check for completion
                 if chunk.get('choices', [{}])[0].get('finish_reason') == "stop":
                     break
@@ -205,6 +193,11 @@ class BaseResearcher:
                     error=f"Query generation failed: {str(e)}"
                 )
             return []
+
+    # Add a delay between API calls
+    async def make_request_with_throttle(self, messages):
+        await self.watsonx_model.achat_stream(messages=messages)
+        await asyncio.sleep(1)
 
     def _format_query_prompt(self, prompt, company, hq, year):
         return f"""{prompt}

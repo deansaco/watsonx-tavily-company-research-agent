@@ -1,6 +1,5 @@
 from langchain_core.messages import AIMessage
 from typing import Dict, List
-import os
 from tavily import AsyncTavilyClient
 import asyncio
 from ..classes import ResearchState
@@ -8,11 +7,8 @@ from ..classes import ResearchState
 class Enricher:
     """Enriches curated documents with raw content."""
     
-    def __init__(self) -> None:
-        tavily_key = os.getenv("TAVILY_API_KEY")
-        if not tavily_key:
-            raise ValueError("TAVILY_API_KEY environment variable is not set")
-        self.tavily_client = AsyncTavilyClient(api_key=tavily_key)
+    def __init__(self, tavily_api_key: str) -> None:
+        self.tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
         self.batch_size = 20
 
     async def fetch_single_content(self, url: str, websocket_manager=None, job_id=None, category=None) -> Dict[str, str]:
