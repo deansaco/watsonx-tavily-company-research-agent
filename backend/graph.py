@@ -17,9 +17,12 @@ logger = logging.getLogger(__name__)
 
 class Graph:
     def __init__(self, company=None, url=None, hq_location=None, industry=None,
-                 websocket_manager=None, job_id=None):
+                 websocket_manager=None, job_id=None, tavily_api_key=None, watsonx_api_key=None, watsonx_project_id=None):
         self.websocket_manager = websocket_manager
         self.job_id = job_id
+        self.tavily_api_key = tavily_api_key
+        self.watsonx_api_key = watsonx_api_key
+        self.watsonx_project_id = watsonx_project_id
         
         # Initialize InputState
         self.input_state = InputState(
@@ -40,16 +43,16 @@ class Graph:
 
     def _init_nodes(self):
         """Initialize all workflow nodes"""
-        self.ground = GroundingNode()
-        self.financial_analyst = FinancialAnalyst()
-        self.news_scanner = NewsScanner()
-        self.industry_analyst = IndustryAnalyzer()
-        self.company_analyst = CompanyAnalyzer()
+        self.ground = GroundingNode(self.tavily_api_key)
+        self.financial_analyst = FinancialAnalyst(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
+        self.news_scanner = NewsScanner(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
+        self.industry_analyst = IndustryAnalyzer(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
+        self.company_analyst = CompanyAnalyzer(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
         self.collector = Collector()
         self.curator = Curator()
-        self.enricher = Enricher()
-        self.briefing = Briefing()
-        self.editor = Editor()
+        self.enricher = Enricher(self.tavily_api_key)
+        self.briefing = Briefing(self.watsonx_api_key, self.watsonx_project_id)
+        self.editor = Editor(self.watsonx_api_key, self.watsonx_project_id)
 
     def _build_workflow(self):
         """Configure the state graph workflow"""

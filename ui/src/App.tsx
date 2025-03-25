@@ -17,6 +17,8 @@ import {
   AnimationStyle,
 } from "./types";
 import { writingAnimation } from "./utils/constants";
+import ApiKeyInput from "./components/ApiKeyInput";
+import InfoModal from "./components/InfoModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const WS_URL = import.meta.env.VITE_WS_URL;
@@ -25,6 +27,12 @@ if (!API_URL || !WS_URL) {
   throw new Error(
     "Environment variables VITE_API_URL and VITE_WS_URL must be set"
   );
+}
+
+export interface ApiKeyData {
+  tavilyApiKey: string;
+  ibmApiKey: string;
+  ibmProjectId: string;
 }
 
 // Add this near your other styles at the top of the file
@@ -151,6 +159,17 @@ function App() {
 
   // Add new state for color cycling
   const [loaderColor, setLoaderColor] = useState("#468BFF");
+
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(true);
+
+  const [isApiKeyDropdownOpen, setIsApiKeyDropdownOpen] =
+    useState<boolean>(false);
+
+  const [apiKeyData, setApiKeyData] = useState<ApiKeyData>({
+    tavilyApiKey: "",
+    ibmApiKey: "",
+    ibmProjectId: "",
+  });
 
   // Add useEffect for color cycling
   useEffect(() => {
@@ -667,14 +686,28 @@ function App() {
   }, []);
 
   // Create a custom handler for the form that receives form data
-  const handleFormSubmit = async (formData: {
-    companyName: string;
-    companyUrl: string;
-    companyHq: string;
-    companyIndustry: string;
-  }) => {
+  const handleFormSubmit = async (
+    formData: {
+      companyName: string;
+      companyUrl: string;
+      companyHq: string;
+      companyIndustry: string;
+    },
+    apiKeyData: ApiKeyData
+  ) => {
     // Clear any existing errors first
     setError(null);
+    setIsApiKeyDropdownOpen(false);
+
+    if (
+      !apiKeyData.tavilyApiKey ||
+      !apiKeyData.ibmApiKey ||
+      !apiKeyData.ibmProjectId
+    ) {
+      setError("Please enter your API keys");
+      setIsApiKeyDropdownOpen(true);
+      return;
+    }
 
     // If research is complete, reset the UI first
     if (isComplete) {
@@ -713,6 +746,10 @@ function App() {
         hq_location: formData.companyHq || undefined,
       };
 
+      const tavilyApiKey = apiKeyData.tavilyApiKey;
+      const watsonXApiKey = apiKeyData.ibmApiKey;
+      const watsonXProjectId = apiKeyData.ibmProjectId;
+
       const response = await fetch(url, {
         method: "POST",
         mode: "cors",
@@ -720,6 +757,9 @@ function App() {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          "X-Tavily-API-Key": tavilyApiKey,
+          "X-WatsonX-API-Key": watsonXApiKey,
+          "X-WatsonX-Project-ID": watsonXProjectId,
         },
         body: JSON.stringify(requestData),
       }).catch((error) => {
@@ -969,9 +1009,29 @@ function App() {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-gray-50 to-white p-8 relative">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(70,139,255,0.35)_1px,transparent_0)] bg-[length:24px_24px] bg-center"></div>
+
+      {isInfoModalOpen && (
+        <InfoModal
+          isOpen={isInfoModalOpen}
+          closeModal={() => setIsInfoModalOpen(false)}
+          title="Getting Started"
+        />
+      )}
       <div className="max-w-5xl mx-auto space-y-8 relative">
         {/* Header Component */}
-        <Header glassStyle={glassStyle.card} />
+        <Header
+          glassStyle={glassStyle.card}
+          setIsInfoModalOpen={setIsInfoModalOpen}
+        />
+
+        {/* Api Key Input */}
+        <ApiKeyInput
+          glassStyle={glassStyle}
+          apiKeyData={apiKeyData}
+          setApiKeyData={setApiKeyData}
+          isOpen={isApiKeyDropdownOpen}
+          setIsOpen={setIsApiKeyDropdownOpen}
+        />
 
         {/* Form Section */}
         <ResearchForm
@@ -979,6 +1039,7 @@ function App() {
           isResearching={isResearching}
           glassStyle={glassStyle}
           loaderColor={loaderColor}
+          apiKeyData={apiKeyData}
         />
 
         {/* Error Message */}

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Briefing:
     """Creates briefings for each research category and updates the ResearchState."""
     
-    def __init__(self) -> None:
+    def __init__(self, watsonx_api_key: str, watsonx_project_id: str) -> None:
         self.max_doc_length = 6000  # Maximum document content length
         # self.gemini_key = os.getenv("GEMINI_API_KEY")
         # if not self.gemini_key:
@@ -23,20 +23,10 @@ class Briefing:
         # self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Configure WatsonX
-        self.watsonx_api_key = os.getenv("WATSONX_API_KEY")
-        self.watsonx_project_id = os.getenv("WATSONX_PROJECT_ID")
-        self.watsonx_url = os.getenv("WATSONX_URL")
-        
-        if not self.watsonx_api_key or not self.watsonx_project_id:
-            raise ValueError("WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables must be set")
-        
-        # Initialize WatsonX client
-        self.watsonx_credentials = Credentials(
+        self.watsonx_client = APIClient(Credentials(
                 url=os.getenv("WATSONX_URL"),
-                api_key=os.getenv("WATSONX_API_KEY"),
-            )
-        
-        self.watsonx_client = APIClient(self.watsonx_credentials)
+                api_key=watsonx_api_key,
+            ))
         
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {
@@ -49,7 +39,7 @@ class Briefing:
         self.watsonx_model = ModelInference(
             model_id="ibm/granite-3-8b-instruct",
             api_client=self.watsonx_client,
-            project_id=self.watsonx_project_id,
+            project_id=watsonx_project_id,
             params = watsonx_params
         )
 

@@ -7,7 +7,7 @@ env_path = Path(__file__).parent / '.env'
 if env_path.exists():
     load_dotenv(dotenv_path=env_path, override=True)
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
@@ -21,6 +21,9 @@ import uuid
 from collections import defaultdict
 from backend.services.mongodb import MongoDBService
 from backend.services.pdf_service import PDFService
+from tavily import AsyncTavilyClient
+from ibm_watsonx_ai import APIClient, Credentials
+
 
 # Configure logging
 logger = logging.getLogger()
@@ -82,11 +85,19 @@ async def preflight():
     return response
 
 @app.post("/research")
-async def research(data: ResearchRequest):
+async def research(request: Request, data: ResearchRequest):
     try:
+        tavily_api_key = request.headers.get("X-Tavily-API-Key")
+        watsonx_api_key = request.headers.get("X-WatsonX-API-Key")
+        watsonx_project_id = request.headers.get("X-WatsonX-Project-ID")
+
+        # Check if all necessary keys are provided
+        if not tavily_api_key or not watsonx_api_key or not watsonx_project_id:
+            raise HTTPException(status_code=400, detail="Missing required API keys in headers")
+    
         logger.info(f"Received research request for {data.company}")
         job_id = str(uuid.uuid4())
-        asyncio.create_task(process_research(job_id, data))
+        asyncio.create_task(process_research(job_id, data, tavily_api_key, watsonx_api_key, watsonx_project_id))
 
         response = JSONResponse(content={
             "status": "accepted",
@@ -103,7 +114,7 @@ async def research(data: ResearchRequest):
         logger.error(f"Error initiating research: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-async def process_research(job_id: str, data: ResearchRequest):
+async def process_research(job_id: str, data: ResearchRequest, tavily_api_key: str, watsonx_api_key: str, watsonx_project_id: str):
     try:
         if mongodb:
             mongodb.create_job(job_id, data.dict())
@@ -117,7 +128,10 @@ async def process_research(job_id: str, data: ResearchRequest):
             industry=data.industry,
             hq_location=data.hq_location,
             websocket_manager=manager,
-            job_id=job_id
+            job_id=job_id,
+            tavily_api_key=tavily_api_key,
+            watsonx_api_key=watsonx_api_key,
+            watsonx_project_id=watsonx_project_id
         )
 
         state = {}
