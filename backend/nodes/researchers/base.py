@@ -28,7 +28,7 @@ class BaseResearcher:
         }
         
         self.watsonx_model = ModelInference(
-            model_id="ibm/granite-3-8b-instruct",
+            model_id="ibm/granite-3-2-8b-instruct",
             api_client=self.watsonx_client,
             project_id=watsonx_project_id,
             params = watsonx_params
