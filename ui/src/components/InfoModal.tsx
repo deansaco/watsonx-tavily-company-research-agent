@@ -85,7 +85,7 @@ const InfoModal: React.FC<ModalProps> = ({ isOpen, closeModal, title }) => {
           />
           <Accordion
             question="What is Tavily?"
-            answer="Tavily provides the infrastructure layer for AI agents to interact with the web at scale. Tavily is built for agentic automation,—offering search, extraction, and crawling (coming soon) in one API."
+            answer="Tavily provides the infrastructure layer for AI agents to interact with the web at scale. Tavily is built for agentic automation—offering search, extraction, and crawling (coming soon) in one API."
           />
           <Accordion
             question="Why combine Granite and Tavily?"
