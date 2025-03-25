@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 class Graph:
     def __init__(self, company=None, url=None, hq_location=None, industry=None,
-                 websocket_manager=None, job_id=None, tavily_api_key=None, watsonx_api_key=None, watsonx_project_id=None):
+                 websocket_manager=None, job_id=None, tavily_client=None, watsonx_client=None, watsonx_project_id=None):
         self.websocket_manager = websocket_manager
         self.job_id = job_id
-        self.tavily_api_key = tavily_api_key
-        self.watsonx_api_key = watsonx_api_key
+        self.tavily_client = tavily_client
+        self.watsonx_client = watsonx_client
         self.watsonx_project_id = watsonx_project_id
         
         # Initialize InputState
@@ -43,16 +43,16 @@ class Graph:
 
     def _init_nodes(self):
         """Initialize all workflow nodes"""
-        self.ground = GroundingNode(self.tavily_api_key)
-        self.financial_analyst = FinancialAnalyst(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
-        self.news_scanner = NewsScanner(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
-        self.industry_analyst = IndustryAnalyzer(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
-        self.company_analyst = CompanyAnalyzer(self.tavily_api_key, self.watsonx_api_key, self.watsonx_project_id)
+        self.ground = GroundingNode(self.tavily_client)
+        self.financial_analyst = FinancialAnalyst(self.tavily_client, self.watsonx_client, self.watsonx_project_id)
+        self.news_scanner = NewsScanner(self.tavily_client, self.watsonx_client, self.watsonx_project_id)
+        self.industry_analyst = IndustryAnalyzer(self.tavily_client, self.watsonx_client, self.watsonx_project_id)
+        self.company_analyst = CompanyAnalyzer(self.tavily_client, self.watsonx_client, self.watsonx_project_id)
         self.collector = Collector()
         self.curator = Curator()
-        self.enricher = Enricher(self.tavily_api_key)
-        self.briefing = Briefing(self.watsonx_api_key, self.watsonx_project_id)
-        self.editor = Editor(self.watsonx_api_key, self.watsonx_project_id)
+        self.enricher = Enricher(self.tavily_client)
+        self.briefing = Briefing(self.watsonx_client, self.watsonx_project_id)
+        self.editor = Editor(self.watsonx_client, self.watsonx_project_id)
 
     def _build_workflow(self):
         """Configure the state graph workflow"""

@@ -9,8 +9,8 @@ from ibm_watsonx_ai import APIClient
 logger = logging.getLogger(__name__)
 
 class FinancialAnalyst(BaseResearcher):
-    def __init__(self, tavily_api_key: str, watsonx_api_key: str, watsonx_project_id: str) -> None:
-        super().__init__(tavily_api_key, watsonx_api_key, watsonx_project_id)
+    def __init__(self, tavily_client: AsyncTavilyClient, watsonx_client: APIClient, watsonx_project_id: str) -> None:
+        super().__init__(tavily_client, watsonx_client, watsonx_project_id)
         self.analyst_type = "financial_analyzer"
 
     async def analyze(self, state: ResearchState) -> Dict[str, Any]:

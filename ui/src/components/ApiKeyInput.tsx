@@ -1,5 +1,5 @@
 import { KeyRound, ChevronDown, ChevronUp, FolderDot } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 
 const ApiKeyInput: React.FC<any> = ({
   glassStyle,
