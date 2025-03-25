@@ -7,8 +7,8 @@ from ..classes import ResearchState
 class Enricher:
     """Enriches curated documents with raw content."""
     
-    def __init__(self, tavily_api_key: str) -> None:
-        self.tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
+    def __init__(self, tavily_client: AsyncTavilyClient) -> None:
+        self.tavily_client = tavily_client
         self.batch_size = 20
 
     async def fetch_single_content(self, url: str, websocket_manager=None, job_id=None, category=None) -> Dict[str, str]:

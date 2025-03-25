@@ -14,7 +14,7 @@ from ..utils.references import format_references_section
 class Editor:
     """Compiles individual section briefings into a cohesive final report."""
     
-    def __init__(self, watsonx_api_key: str, watsonx_project_id: str) -> None:
+    def __init__(self, watsonx_client: APIClient, watsonx_project_id: str) -> None:
         # self.openai_key = os.getenv("OPENAI_API_KEY")
         # if not self.openai_key:
         #     raise ValueError("OPENAI_API_KEY environment variable is not set")
@@ -24,10 +24,7 @@ class Editor:
         # Initialize WatsonX client
         
         # Configure WatsonX
-        self.watsonx_client = APIClient(Credentials(
-                url=os.getenv("WATSONX_URL"),
-                api_key=watsonx_api_key,
-            ))
+        self.watsonx_client = watsonx_client
         
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {

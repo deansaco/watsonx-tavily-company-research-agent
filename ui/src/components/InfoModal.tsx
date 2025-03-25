@@ -20,10 +20,10 @@ const InfoModal: React.FC<ModalProps> = ({ isOpen, closeModal, title }) => {
 
       {/* Modal */}
       <div
-        className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-full max-w-lg bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-6 space-y-4 transition-transform duration-500 ease-in-out ${
+        className={`fixed top-40 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-full max-w-lg bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-6 space-y-4 transition-transform duration-500 ease-in-out ${
           isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         } z-50`}
-        style={{ maxHeight: "80vh", overflowY: "auto" }}
+        style={{ maxHeight: "60vh", overflowY: "auto" }}
       >
         {/* Modal Header */}
         <div className="flex justify-between items-center">

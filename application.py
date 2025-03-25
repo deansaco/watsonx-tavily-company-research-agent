@@ -119,6 +119,13 @@ async def process_research(job_id: str, data: ResearchRequest, tavily_api_key: s
         if mongodb:
             mongodb.create_job(job_id, data.dict())
         await asyncio.sleep(1)  # Allow WebSocket connection
+        
+        tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
+        watsonx_client = APIClient(Credentials(
+            url=os.getenv("WATSONX_URL"),
+            api_key=watsonx_api_key,
+        ))
+
 
         await manager.send_status_update(job_id, status="processing", message="Starting research")
 
@@ -129,8 +136,8 @@ async def process_research(job_id: str, data: ResearchRequest, tavily_api_key: s
             hq_location=data.hq_location,
             websocket_manager=manager,
             job_id=job_id,
-            tavily_api_key=tavily_api_key,
-            watsonx_api_key=watsonx_api_key,
+            tavily_client=tavily_client,
+            watsonx_client=watsonx_client,
             watsonx_project_id=watsonx_project_id
         )
 

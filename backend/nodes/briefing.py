@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Briefing:
     """Creates briefings for each research category and updates the ResearchState."""
     
-    def __init__(self, watsonx_api_key: str, watsonx_project_id: str) -> None:
+    def __init__(self, watsonx_client: APIClient, watsonx_project_id: str) -> None:
         self.max_doc_length = 6000  # Maximum document content length
         # self.gemini_key = os.getenv("GEMINI_API_KEY")
         # if not self.gemini_key:
@@ -23,10 +23,7 @@ class Briefing:
         # self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Configure WatsonX
-        self.watsonx_client = APIClient(Credentials(
-                url=os.getenv("WATSONX_URL"),
-                api_key=watsonx_api_key,
-            ))
+        self.watsonx_client = watsonx_client
         
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {

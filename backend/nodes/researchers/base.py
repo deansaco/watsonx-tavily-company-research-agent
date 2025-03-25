@@ -13,11 +13,8 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 class BaseResearcher:
-    def __init__(self, tavily_api_key: str, watsonx_api_key: str, watsonx_project_id: str):        
-        self.watsonx_client = APIClient(Credentials(
-                url=os.getenv("WATSONX_URL"),
-                api_key=watsonx_api_key,
-            ))
+    def __init__(self, tavily_client: AsyncTavilyClient, watsonx_client: APIClient, watsonx_project_id: str):        
+        self.watsonx_client = watsonx_client
         
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {
@@ -38,7 +35,7 @@ class BaseResearcher:
         #openai_key = os.getenv("OPENAI_API_KEY")
         
             
-        self.tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
+        self.tavily_client = tavily_client  
         #self.openai_client = AsyncOpenAI(api_key=openai_key)
         self.analyst_type = "base_researcher"  # Default type
 

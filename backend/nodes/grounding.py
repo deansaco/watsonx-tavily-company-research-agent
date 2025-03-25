@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 class GroundingNode:
     """Gathers initial grounding data about the company."""
     
-    def __init__(self, tavily_api_key: str) -> None:
-        self.tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
+    def __init__(self, tavily_client: AsyncTavilyClient) -> None:
+        self.tavily_client = tavily_client
 
     async def initial_search(self, state: InputState) -> ResearchState:
         # Add debug logging at the start to check websocket manager
