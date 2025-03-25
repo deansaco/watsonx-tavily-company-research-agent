@@ -53,7 +53,7 @@ const ApiKeyInput: React.FC<any> = ({
                 <input
                   required
                   id="tavilyApiKey"
-                  type="text"
+                  type="password"
                   value={apiKeyData.tavilyApiKey}
                   spellCheck="false"
                   onChange={(e) => {
@@ -84,7 +84,7 @@ const ApiKeyInput: React.FC<any> = ({
                 <input
                   required
                   id="ibmApiKey"
-                  type="text"
+                  type="password"
                   value={apiKeyData.ibmApiKey}
                   spellCheck="false"
                   onChange={(e) =>
@@ -112,7 +112,7 @@ const ApiKeyInput: React.FC<any> = ({
                 <input
                   required
                   id="ibmProjectId"
-                  type="text"
+                  type="password"
                   spellCheck="false"
                   value={apiKeyData.ibmProjectId}
                   onChange={(e) =>

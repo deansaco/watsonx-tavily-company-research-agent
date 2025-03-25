@@ -122,14 +122,14 @@ const ResearchForm: React.FC<ResearchFormProps> = ({
   };
 
   return (
-    <div className="relative" ref={formRef}>
+    <div className="relative" ref={formRef} style={{ marginTop: "80px" }}>
       {/* Example Suggestion */}
-      {/* <ExamplePopup 
+      <ExamplePopup
         visible={showExampleSuggestion}
         onExampleSelect={fillExampleData}
         glassStyle={glassStyle}
         exampleRef={exampleRef}
-      /> */}
+      />
 
       {/* Main Form */}
       <div

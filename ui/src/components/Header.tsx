@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ glassStyle, setIsInfoModalOpen }) => {
           Company Research Agent
         </h1>
         <p className="text-gray-600 text-lg font-['DM_Sans'] mt-4">
-          Conduct in-depth company diligence powered by Tavily and IBM Granite
+          Conduct in-depth company diligence powered by Tavily and IBM® Granite™
         </p>
       </div>
       <div className="absolute top-0 right-0 flex items-center space-x-2">
