@@ -20,9 +20,10 @@ const InfoModal: React.FC<ModalProps> = ({ isOpen, closeModal, title }) => {
 
       {/* Modal */}
       <div
-        className={`fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/3 w-full max-w-lg bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-6 space-y-4 transition-transform duration-500 ease-in-out ${
+        className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-full max-w-lg bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-6 space-y-4 transition-transform duration-500 ease-in-out ${
           isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         } z-50`}
+        style={{ maxHeight: "80vh", overflowY: "auto" }}
       >
         {/* Modal Header */}
         <div className="flex justify-between items-center">
@@ -48,19 +49,47 @@ const InfoModal: React.FC<ModalProps> = ({ isOpen, closeModal, title }) => {
           </button>
         </div>
 
+        <div className="text-gray-600">
+          <p>
+            To get started with the Company Research Agent, get your free{" "}
+            <a
+              href="https://app.tavily.com/home"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700"
+            >
+              Tavily API key
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://www.ibm.com/products/watsonx-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700"
+            >
+              watsonx API key
+            </a>
+            .
+          </p>
+        </div>
+
         {/* Modal Content */}
         <div className="space-y-1">
           <Accordion
-            question="What is Research Agent?"
-            answer="Research Agent provides tailored market research services using data-driven insights to help businesses make informed decisions."
+            question="What is the Company Research Agent?"
+            answer="It’s an open-source AI agent built with watsonx.ai and Tavily to perform in-depth company research."
           />
           <Accordion
-            question="How can I use Research Agent?"
-            answer="You can leverage our research services for competitive analysis, market forecasts, consumer behavior insights, and more."
+            question="Which LLMs are used?"
+            answer="The entire agentic system is built with IBM’s open source, lightweight, and cost-efficient Granite-3.2-8B-Instruct models, served on IBM’s hybrid cloud watsonx platform. We invoke this model in different areas of the agentic workflow for cost-effective insights."
           />
           <Accordion
-            question="How do I get started with Research Agent?"
-            answer="Getting started is easy! Just contact us through our website, and we'll customize a plan to meet your needs."
+            question="What is Tavily?"
+            answer="Tavily provides the infrastructure layer for AI agents to interact with the web at scale. Tavily is built for agentic automation,—offering search, extraction, and crawling (coming soon) in one API."
+          />
+          <Accordion
+            question="Why combine Granite and Tavily?"
+            answer="By pairing a cost-efficient LLM with real-time web access, you can generate deeper, more contextually relevant insights."
           />
         </div>
       </div>
