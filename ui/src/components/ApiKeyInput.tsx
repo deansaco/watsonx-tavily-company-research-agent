@@ -1,4 +1,10 @@
-import { KeyRound, ChevronDown, ChevronUp, FolderDot } from "lucide-react";
+import {
+  KeyRound,
+  ChevronDown,
+  ChevronUp,
+  FolderDot,
+  Info,
+} from "lucide-react";
 import React from "react";
 
 const ApiKeyInput: React.FC<any> = ({
@@ -71,9 +77,30 @@ const ApiKeyInput: React.FC<any> = ({
             <div className="relative group">
               <label
                 htmlFor="ibmApiKey"
-                className="block text-base font-medium text-gray-700 mb-2.5 transition-all duration-200 group-hover:text-gray-900 font-['DM_Sans']"
+                className="block text-base font-medium text-gray-700 mb-2.5 transition-all duration-200 group-hover:text-gray-900 font-['DM_Sans'] flex items-center"
               >
                 watsonx API Key <span className="text-gray-900/70">*</span>
+                <div className="relative ml-2 group/info">
+                  <Info
+                    className="h-4 w-4 text-gray-500 hover:text-gray-700 cursor-pointer"
+                    strokeWidth={1.5}
+                  />
+                  <div
+                    className="absolute z-10 left-full top-1/2 transform -translate-y-1/2 ml-2 
+        w-64 p-2 bg-gray-800 text-white text-xs rounded-md shadow-lg 
+        opacity-0 group-hover/info:opacity-100 
+        transition-opacity duration-300 
+        pointer-events-none"
+                  >
+                    <p>
+                      This application is compatible only with data centers that
+                      support the granite-3-2-8b-instruct model (e.g., Dallas).
+                      For optimal performance, please ensure you're using the
+                      Essentials or Standard plan to fully support asynchronous
+                      model calls.
+                    </p>
+                  </div>
+                </div>
               </label>
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-50/0 via-gray-100/50 to-gray-50/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
