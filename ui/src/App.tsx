@@ -700,7 +700,6 @@ function App() {
     setIsApiKeyDropdownOpen(false);
 
     if (
-      !apiKeyData.tavilyApiKey ||
       !apiKeyData.ibmApiKey ||
       !apiKeyData.ibmProjectId
     ) {

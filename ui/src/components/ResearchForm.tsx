@@ -254,7 +254,6 @@ const ResearchForm: React.FC<ResearchFormProps> = ({
             disabled={
               isResearching ||
               !formData.companyName ||
-              !apiKeyData.tavilyApiKey ||
               !apiKeyData.ibmApiKey ||
               !apiKeyData.ibmProjectId
             }

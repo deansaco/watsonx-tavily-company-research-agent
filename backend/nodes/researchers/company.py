@@ -51,7 +51,7 @@ class CompanyAnalyzer(BaseResearcher):
             company_url = state.get('company_url', 'company-website')
             company_data[company_url] = {
                 'title': state.get('company', 'Unknown Company'),
-                'raw_content': site_scrape,
+                'raw_content': site_scrape.get('raw_content', ''),
                 'query': f'Company overview and information about {company}'  # Add a default query for site scrape
             }
         
@@ -71,7 +71,7 @@ class CompanyAnalyzer(BaseResearcher):
                     await websocket_manager.send_status_update(
                         job_id=job_id,
                         status="processing",
-                        message=f"Used Tavily Search to find {len(company_data)} documents",
+                        message=f"Found {len(company_data)} research documents",
                         result={
                             "step": "Searching",
                             "analyst_type": "Company Analyst",
@@ -93,4 +93,4 @@ class CompanyAnalyzer(BaseResearcher):
         }
 
     async def run(self, state: ResearchState) -> Dict[str, Any]:
-        return await self.analyze(state) 
+        return await self.analyze(state)

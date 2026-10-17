@@ -49,7 +49,7 @@ class GroundingNode:
                     )
 
             try:
-                logger.info("Initiating Tavily extraction")
+                logger.info("Initiating website extraction")
                 site_extraction = await self.tavily_client.extract(url, extract_depth="basic")
                 
                 raw_contents = []

@@ -51,7 +51,7 @@ class IndustryAnalyzer(BaseResearcher):
             company_url = state.get('company_url', 'company-website')
             industry_data[company_url] = {
                 'title': state.get('company', 'Unknown Company'),
-                'raw_content': site_scrape,
+                'raw_content': site_scrape.get('raw_content', ''),
                 'query': f'Industry analysis on {company}'  # Add a default query for site scrape
             }
         
@@ -71,7 +71,7 @@ class IndustryAnalyzer(BaseResearcher):
                     await websocket_manager.send_status_update(
                         job_id=job_id,
                         status="processing",
-                        message=f"Used Tavily Search to find {len(industry_data)} documents",
+                        message=f"Search found {len(industry_data)} documents",
                         result={
                             "step": "Searching",
                             "analyst_type": "Industry Analyst",

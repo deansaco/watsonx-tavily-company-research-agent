@@ -35,7 +35,7 @@ class NewsScanner(BaseResearcher):
             company_url = state.get('company_url', 'company-website')
             news_data[company_url] = {
                 'title': state.get('company', 'Unknown Company'),
-                'raw_content': site_scrape,
+                'raw_content': site_scrape.get('raw_content', ''),
                 'query': f'News and announcements about {company}'  # Add a default query for site scrape
             }
         
@@ -55,7 +55,7 @@ class NewsScanner(BaseResearcher):
                     await websocket_manager.send_status_update(
                         job_id=job_id,
                         status="processing",
-                        message=f"Used Tavily Search to find {len(news_data)} documents",
+                        message=f"Search found {len(news_data)} documents",
                         result={
                             "step": "Searching",
                             "analyst_type": "News Scanner",

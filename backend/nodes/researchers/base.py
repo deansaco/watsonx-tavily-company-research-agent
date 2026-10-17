@@ -237,9 +237,9 @@ class BaseResearcher:
                 "max_results": 5
             }
             
-            if self.analyst_type == "news_analyst":
+            if self.analyst_type in ("news_analyst", "news_analyzer"):
                 search_params["topic"] = "news"
-            elif self.analyst_type == "financial_analyst":
+            elif self.analyst_type in ("financial_analyst", "financial_analyzer"):
                 search_params["topic"] = "finance"
 
             results = await self.tavily_client.search(
@@ -270,7 +270,8 @@ class BaseResearcher:
                     "query": query,
                     "url": url,
                     "source": "web_search",
-                    "score": result.get("score", 0.0)
+                    "score": result.get("score", 0.0),
+                    "provider": result.get("provider", "tavily")
                 }
 
             if websocket_manager and job_id:
@@ -334,16 +335,16 @@ class BaseResearcher:
             "max_results": 5
         }
         
-        if self.analyst_type == "news_analyst":
+        if self.analyst_type in ("news_analyst", "news_analyzer"):
             search_params["topic"] = "news"
-        elif self.analyst_type == "financial_analyst":
+        elif self.analyst_type in ("financial_analyst", "financial_analyzer"):
             search_params["topic"] = "finance"
 
         if websocket_manager and job_id:
             await websocket_manager.send_status_update(
                 job_id=job_id,
                 status="search_started",
-                message=f"Using Tavily to search for {len(queries)} queries",
+                message=f"Searching for {len(queries)} queries",
                 result={
                     "step": "Searching",
                     "total_queries": len(queries)
@@ -360,6 +361,13 @@ class BaseResearcher:
             results = await asyncio.gather(*search_tasks)
         except Exception as e:
             logger.error(f"Error during parallel search execution: {e}")
+            if websocket_manager and job_id:
+                await websocket_manager.send_status_update(
+                    job_id=job_id,
+                    status="query_error",
+                    message="Research search failed",
+                    result={"step": "Searching", "error": str(e) or type(e).__name__}
+                )
             return {}
 
         # Process results
@@ -383,7 +391,8 @@ class BaseResearcher:
                     "query": query,
                     "url": url,
                     "source": "web_search",
-                    "score": item.get("score", 0.0)
+                    "score": item.get("score", 0.0),
+                    "provider": item.get("provider", "tavily")
                 }
 
 

@@ -13,7 +13,7 @@ class Curator:
         logger.info("Curator initialized with relevance threshold: {relevance_threshhold}")
 
     async def evaluate_documents(self, state: ResearchState, docs: list, context: Dict[str, str]) -> list:
-        """Evaluate documents based on Tavily's scoring."""
+        """Filter scored Tavily results; retain Parallel's relevance order."""
         if websocket_manager := state.get('websocket_manager'):
             if job_id := state.get('job_id'):
                 logger.info(f"Sending initial curation status update for job {job_id}")
@@ -37,16 +37,18 @@ class Curator:
             for doc in docs:
                 try:
                     # Ensure score is a valid float
-                    tavily_score = float(doc.get('score', 0))  # Default to 0 if no score
+                    unscored = doc.get('provider') == 'parallel' and doc.get('score') is None
+                    tavily_score = None if unscored else float(doc.get('score', 0))
                     
                     # Keep documents with good Tavily score
-                    if tavily_score >= self.relevance_threshold:
-                        logger.info(f"Document passed threshold with score {tavily_score:.4f} for '{doc.get('title', 'No title')}'")
+                    if unscored or tavily_score >= self.relevance_threshold:
+                        logger.info("Keeping document %s (score=%s)", doc.get('title', 'No title'), tavily_score)
                         
                         evaluated_doc = {
                             **doc,
                             "evaluation": {
-                                "overall_score": tavily_score,  # Store as float
+                                "overall_score": tavily_score,  # None for providers without scores
+                                "method": "provider_order" if unscored else "relevance_score",
                                 "query": doc.get('query', '')
                             }
                         }
@@ -77,7 +79,7 @@ class Curator:
             return []
 
         # Sort evaluated docs by score before returning
-        evaluated_docs.sort(key=lambda x: float(x['evaluation']['overall_score']), reverse=True)
+        evaluated_docs.sort(key=lambda x: float(x['evaluation']['overall_score'] or 0), reverse=True)
         logger.info(f"Returning {len(evaluated_docs)} evaluated documents")
         
         return evaluated_docs
@@ -136,7 +138,7 @@ class Curator:
                     parsed = urlparse(url)
                     if not parsed.scheme:
                         url = urljoin('https://', url)
-                    clean_url = parsed._replace(query='', fragment='').geturl()
+                    clean_url = parsed._replace(fragment='').geturl()
                     if clean_url not in unique_docs:
                         doc['url'] = clean_url
                         doc['doc_type'] = doc_type
@@ -174,8 +176,8 @@ class Curator:
                 continue
 
             # Filter and sort by Tavily score
-            relevant_docs = {url: doc for url, doc in zip(urls, evaluated_docs)}
-            sorted_items = sorted(relevant_docs.items(), key=lambda item: item[1]['evaluation']['overall_score'], reverse=True)
+            relevant_docs = {doc['url']: doc for doc in evaluated_docs}
+            sorted_items = sorted(relevant_docs.items(), key=lambda item: item[1]['evaluation']['overall_score'] or 0, reverse=True)
             
             # Limit to top 30 documents per category
             if len(sorted_items) > 30:

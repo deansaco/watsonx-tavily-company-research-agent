@@ -114,6 +114,41 @@ The platform implements a WebSocket-based real-time communication system:
 
 ## Setup
 
+### Search provider
+
+Company research uses [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp)
+when no Tavily key is configured. It provides free web search powered by Fast mode
+and page fetching at `https://search.parallel.ai/mcp`, without a Parallel account
+or API key. In the UI, leave **Tavily API Key** blank. The **watsonx API Key** and
+**watsonx Project ID** fields are still required for query generation and reports;
+set `WATSONX_URL` on the backend to your supported IBM region.
+
+A Tavily key entered in the UI (or set as backend `TAVILY_API_KEY`) keeps using
+Tavily, including its search options and relevance scoring. Parallel results use
+the provider's relevance order; they have no numeric relevance score and are kept
+without applying Tavily's 0.4 score threshold. News and finance searches pass their
+intent in the search objective rather than claiming Tavily's topic filters.
+
+The backend `SEARCH_PROVIDER` setting accepts `auto` (default), `parallel`,
+`tavily`, or `none`. API clients can explicitly choose a provider with the
+`X-Search-Provider` header. `none` disables research search; a server setting of
+`none` cannot be overridden by a request. An explicit Tavily choice requires a
+key. Provider failures never switch providers automatically. Requests have a
+60-second MCP deadline and report failures through the existing progress events.
+The anonymous service has usage limits; errors do not bypass them.
+
+For example, with the backend running, no Tavily environment key, and your
+`WATSONX_API_KEY` and `WATSONX_PROJECT_ID` exported in your shell:
+
+```bash
+curl http://localhost:8000/research \
+  -H 'Content-Type: application/json' \
+  -H "X-WatsonX-API-Key: ${WATSONX_API_KEY}" \
+  -H "X-WatsonX-Project-ID: ${WATSONX_PROJECT_ID}" \
+  -d '{"company":"IBM","industry":"Technology"}'
+```
+
+
 ### Quick Setup (Recommended)
 
 The easiest way to get started is using the setup script:
@@ -138,7 +173,7 @@ The setup script will:
 - Optionally start both backend and frontend servers
 
 You'll need the following API keys ready:
-- Tavily API Key
+- Tavily API Key (optional; leave blank for Parallel)
 - Google Gemini API Key
 - OpenAI API Key
 - MongoDB URI (optional)
@@ -171,7 +206,8 @@ npm install
 
 4. Create a `.env` file with your API keys:
 ```env
-TAVILY_API_KEY=your_tavily_key
+# Optional: select Tavily instead of the keyless Parallel default
+# TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
 OPENAI_API_KEY=your_openai_key
 
@@ -191,7 +227,8 @@ cd tavily-company-research
 
 2. Create a `.env` file with your API keys:
 ```env
-TAVILY_API_KEY=your_tavily_key
+# Optional: select Tavily instead of the keyless Parallel default
+# TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
 OPENAI_API_KEY=your_openai_key
 

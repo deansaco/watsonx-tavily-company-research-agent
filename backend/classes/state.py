@@ -26,5 +26,7 @@ class ResearchState(InputState):
     industry_briefing: str
     company_briefing: str
     references: List[str]
+    reference_titles: Dict[str, str]
+    reference_info: Dict[str, Any]
     briefings: Dict[str, Any]
     report: str
