@@ -55,7 +55,7 @@ class FinancialAnalyst(BaseResearcher):
                 company_url = state.get('company_url', 'company-website')
                 financial_data[company_url] = {
                     'title': state.get('company', 'Unknown Company'),
-                    'raw_content': site_scrape,
+                    'raw_content': site_scrape.get('raw_content', ''),
                     'query': f'Financial information on {company}'
                 }
 
@@ -73,7 +73,7 @@ class FinancialAnalyst(BaseResearcher):
                     await websocket_manager.send_status_update(
                         job_id=job_id,
                         status="processing",
-                        message=f"Used Tavily Search to find {len(financial_data)} documents",
+                        message=f"Search found {len(financial_data)} documents",
                         result={
                             "step": "Searching",
                             "analyst_type": "Financial Analyst",

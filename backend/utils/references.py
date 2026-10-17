@@ -89,7 +89,7 @@ def clean_title(title: str) -> str:
     return title
 
 def normalize_url(url: str) -> str:
-    """Normalize a URL by removing query parameters and fragments."""
+    """Drop fragments while preserving query parameters that identify a page."""
     try:
         if not url:
             return ""
@@ -99,7 +99,7 @@ def normalize_url(url: str) -> str:
             url = 'https://' + url
             
         parsed = urlparse(url)
-        normalized_url = parsed._replace(query='', fragment='').geturl().rstrip('/')
+        normalized_url = parsed._replace(fragment='').geturl()
         
         return normalized_url
     except Exception as e:
@@ -139,7 +139,7 @@ def process_references_from_search_results(state: Dict[str, Any]) -> Tuple[List[
                 try:
                     # Ensure we have a valid score
                     if 'evaluation' in doc and 'overall_score' in doc['evaluation']:
-                        score = float(doc['evaluation']['overall_score'])
+                        score = float(doc['evaluation']['overall_score'] or 0)
                     else:
                         # Fallback to raw score if available
                         score = float(doc.get('score', 0))
@@ -356,4 +356,4 @@ def format_references_section(references: List[str], reference_info: Dict[str, D
     reference_text = "\n".join(reference_lines)
     logger.info(f"Completed references section with {len(reference_entries)} entries")
     
-    return reference_text 
+    return reference_text

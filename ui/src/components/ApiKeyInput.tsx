@@ -48,7 +48,7 @@ const ApiKeyInput: React.FC<any> = ({
                 htmlFor="tavilyApiKey"
                 className="block text-base font-medium text-gray-700 mb-2.5 transition-all duration-200 group-hover:text-gray-900 font-['DM_Sans']"
               >
-                Tavily API Key <span className="text-gray-900/70">*</span>
+                Tavily API Key (optional)
               </label>
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-50/0 via-gray-100/50 to-gray-50/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
@@ -57,7 +57,6 @@ const ApiKeyInput: React.FC<any> = ({
                   strokeWidth={1.5}
                 />
                 <input
-                  required
                   id="tavilyApiKey"
                   type="password"
                   value={apiKeyData.tavilyApiKey}
@@ -69,9 +68,13 @@ const ApiKeyInput: React.FC<any> = ({
                     });
                   }}
                   className={`${glassStyle.input} transition-all duration-300 focus:border-[#468BFF]/50 focus:ring-1 focus:ring-[#468BFF]/50 group-hover:border-[#468BFF]/30 bg-white/80 backdrop-blur-sm text-lg py-4 pl-12 font-['DM_Sans']`}
-                  placeholder="Enter Tavily API Key"
+                  placeholder="Leave blank to use Parallel"
                 />
               </div>
+              <p className="mt-2 text-sm text-gray-600">
+                Without a search key, research uses Parallel Search MCP. Enter a
+                Tavily key to keep using Tavily search and relevance scoring.
+              </p>
             </div>
 
             <div className="relative group">

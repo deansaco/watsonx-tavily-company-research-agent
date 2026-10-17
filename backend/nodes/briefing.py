@@ -170,7 +170,7 @@ Key requirements:
         # Sort documents by evaluation score (highest first)
         sorted_items = sorted(
             items, 
-            key=lambda x: float(x[1].get('evaluation', {}).get('overall_score', '0')), 
+            key=lambda x: float(x[1].get('evaluation', {}).get('overall_score') or 0),
             reverse=True
         )
         

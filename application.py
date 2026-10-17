@@ -21,7 +21,7 @@ import uuid
 from collections import defaultdict
 from backend.services.mongodb import MongoDBService
 from backend.services.pdf_service import PDFService
-from tavily import AsyncTavilyClient
+from backend.services.search import create_search_client, resolve_search_provider
 from ibm_watsonx_ai import APIClient, Credentials
 
 
@@ -87,17 +87,21 @@ async def preflight():
 @app.post("/research")
 async def research(request: Request, data: ResearchRequest):
     try:
-        tavily_api_key = request.headers.get("X-Tavily-API-Key")
+        tavily_api_key = request.headers.get("X-Tavily-API-Key") or os.getenv("TAVILY_API_KEY")
+        try:
+            search_provider = resolve_search_provider(tavily_api_key, request.headers.get("X-Search-Provider"))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
         watsonx_api_key = request.headers.get("X-WatsonX-API-Key")
         watsonx_project_id = request.headers.get("X-WatsonX-Project-ID")
 
         # Check if all necessary keys are provided
-        if not tavily_api_key or not watsonx_api_key or not watsonx_project_id:
+        if not watsonx_api_key or not watsonx_project_id:
             raise HTTPException(status_code=400, detail="Missing required API keys in headers")
     
         logger.info(f"Received research request for {data.company}")
         job_id = str(uuid.uuid4())
-        asyncio.create_task(process_research(job_id, data, tavily_api_key, watsonx_api_key, watsonx_project_id))
+        asyncio.create_task(process_research(job_id, data, tavily_api_key, watsonx_api_key, watsonx_project_id, search_provider))
 
         response = JSONResponse(content={
             "status": "accepted",
@@ -110,17 +114,19 @@ async def research(request: Request, data: ResearchRequest):
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         return response
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error initiating research: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-async def process_research(job_id: str, data: ResearchRequest, tavily_api_key: str, watsonx_api_key: str, watsonx_project_id: str):
+async def process_research(job_id: str, data: ResearchRequest, tavily_api_key: str | None, watsonx_api_key: str, watsonx_project_id: str, search_provider: str | None = None):
     try:
         if mongodb:
             mongodb.create_job(job_id, data.dict())
         await asyncio.sleep(1)  # Allow WebSocket connection
         
-        tavily_client = AsyncTavilyClient(api_key=tavily_api_key)
+        tavily_client = create_search_client(tavily_api_key, search_provider)
         watsonx_client = APIClient(Credentials(
             url=os.getenv("WATSONX_URL"),
             api_key=watsonx_api_key,
